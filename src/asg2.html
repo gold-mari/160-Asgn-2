@@ -1,30 +1,3 @@
-<!-- 
-    Dylan Mahler
-    dmahler@ucsc.edu
-
-    Notes to Grader:
-    For the "Awesomeness" portion of my assignment, I've made a handful of under-the-hood
-    improvements to make the act of drawing more intuitive.
-
-    I've implemented a lot of 'preview' functionality, which writes to the page:
-        - The currently selected pen type
-        - The currently selected number of circle segments
-        - The current pen color, both as a hex code, and as an actual color on the page
-    All of these previews update live when the user updates the sliders.
-
-    For my many-triangle-drawing, I wrote several classes to support drawing such images.
-        - FreeTriangle.js, a version of the triangle class which allows all 3 points to be
-          written to.
-        - FreeTriangleGroup.js, a static class with functions for drawing free triangles,
-          provided data from an array.
-            - There are two modes of drawing FreeTriangleGroups, either all at once (as
-              circles are drawn), or one-by-one, using interval functions.
-        - Drawings.js, a definitions file containing the array of points used to draw my
-          bird! ^v^
-    The triangles of this drawing are added to the shape buffer, so the resultant image
-    can be drawn on. You can decorate the bird!
- -->
-
 <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -42,39 +15,8 @@
         <hr><br>
 
         <form>
-            <input id="clearCanvas" name="clearCanvas" type="button" value="Clear Canvas">
-            <input id="drawBird" name="drawBird" type="button" value="Draw Bird">
-            <input id="drawBird_Rush" name="drawBird_Rush" type="button" value="Draw Bird (Rush)">
-
-            <br><br>
-
-            <strong><div id="penType">Pen Type</div></strong>
-            <input id="penPoint" name="penPoint" type="button" value="Points">
-            <input id="penTriangle" name="penTriangle" type="button" value="Triangles">
-            <input id="penCircle" name="penCircle" type="button" value="Circles">
-
-            <br><br>
-
             <label for="camAngle"><strong><div id="camAngleLabel">Camera Angle</div></strong></label>
             <input id="camAngle" name="camAngle" type="range" class="slider" min="0" max="360" value="0">
-
-            <br><br>
-
-            <strong><div id="penColor">Pen Color</div></strong>
-            <label for="penColor-r">Red</label>
-            <input  id="penColor-r" name="penColor-r"type="range" class="slider" min="0" max="255" value="255">
-            <label for="penColor-g">Green</label>
-            <input id="penColor-g" name="penColor-g" type="range" class="slider" min="0" max="255" value="255">
-            <label for="penColor-b">Blue</label>
-            <input id="penColor-b" name="penColor-b" type="range" class="slider" min="0" max="255" value="255">
-
-            <div id="penColorPreview" style="border-style:inset"><br></div>
-
-            <br>
-
-            <label for="penSize"><strong>Pen Size</strong></label><br>
-            <input id="penSize" name="penSize" type="range" class="slider" min="1" max="100" value="10">
-
         </form>
             
         <script src="../lib/webgl-utils.js"></script>

@@ -128,31 +128,8 @@ function connectVariablesToGLSL() {
 }
 
 function addActionsForHTMLUI() {
-    // Clear canvas button
-    document.getElementById("clearCanvas").addEventListener("mouseup", function() {
-        if (!g_penLocked) {
-            g_shapesList = []; 
-            renderAllShapes();
-        }
-    });
-
     // Initialize dynamic text
-    g_penType = POINT;
-    sendTextTOHTML("penType", "Pen Type (selected: POINT)");
     sendTextTOHTML("camAngleLabel", "Camera Angle (current: 0)");
-
-    document.getElementById("penPoint").addEventListener("mouseup", function() { 
-        g_penType = POINT;
-        sendTextTOHTML("penType", "Pen Type (selected: POINT)");
-    });
-    document.getElementById("penTriangle").addEventListener("mouseup", function() { 
-        g_penType = TRIANGLE;
-        sendTextTOHTML("penType", "Pen Type (selected: TRIANGLE)");
-    });
-    document.getElementById("penCircle").addEventListener("mouseup", function() { 
-        g_penType = CIRCLE;
-        sendTextTOHTML("penType", "Pen Type (selected: CIRCLE)");
-    });
     
     // Circle segment count slider
     let camAngle = document.getElementById("camAngle")
@@ -161,41 +138,6 @@ function addActionsForHTMLUI() {
         g_globalAngle = this.value;
         renderAllShapes();
     });
-
-    // Pen color sliders and color preview
-    let penColorR = document.getElementById("penColor-r");
-    let penColorG = document.getElementById("penColor-g");
-    let penColorB = document.getElementById("penColor-b");
-    penColorR.addEventListener("mouseup", function() {
-        g_penColor[0] = this.value/255;
-        colorChanged("penColorPreview");
-    });
-    penColorG.addEventListener("mouseup", function() { 
-        g_penColor[1] = this.value/255
-        colorChanged("penColorPreview"); 
-    });
-    penColorB.addEventListener("mouseup", function() {
-        g_penColor[2] = this.value/255;
-        colorChanged("penColorPreview");
-    });
-    penColorR.addEventListener("mousemove", function() {
-        g_penColor[0] = this.value/255;
-        colorChanged("penColorPreview");
-    });
-    penColorG.addEventListener("mousemove", function() { 
-        g_penColor[1] = this.value/255
-        colorChanged("penColorPreview"); 
-    });
-    penColorB.addEventListener("mousemove", function() {
-        g_penColor[2] = this.value/255;
-        colorChanged("penColorPreview");
-    });
-
-    // Pen size slider
-    document.getElementById("penSize").addEventListener("mouseup", function() { g_penSize = this.value; });
-
-    // Initialize HTML
-    colorChanged("penColorPreview"); 
 }
 
 function clearCanvas() {
@@ -214,30 +156,30 @@ function click(ev) {
     // Extract the event click and convert to WebGL canvas space
     let [x, y] = coordinatesEventToGLSpace(ev);
 
-    let shape = undefined;
-    switch (g_penType) {
-        case POINT:
-            shape = new Point();
-            break;
-        case TRIANGLE:
-            shape = new Triangle();
-            break;
-        case CIRCLE:
-            shape = new Circle();
-            shape.setSegments(g_circleSegments);
-            break;
-    }
+//     let shape = undefined;
+//     switch (g_penType) {
+//         case POINT:
+//             shape = new Point();
+//             break;
+//         case TRIANGLE:
+//             shape = new Triangle();
+//             break;
+//         case CIRCLE:
+//             shape = new Circle();
+//             shape.setSegments(g_circleSegments);
+//             break;
+//     }
     
-    if (shape != undefined) {
-        shape.setPosition(x, y, 0.0);
-        shape.setColor(...g_penColor);
-        shape.setSize(g_penSize);
+//     if (shape != undefined) {
+//         shape.setPosition(x, y, 0.0);
+//         shape.setColor(...g_penColor);
+//         shape.setSize(g_penSize);
 
-        g_shapesList.push(shape);
+//         g_shapesList.push(shape);
 
-        // Draw every shape that's supposed to be on the canvas.
-        renderAllShapes();
-    }
+//         // Draw every shape that's supposed to be on the canvas.
+//         renderAllShapes();
+//     }
 }
 
 // ================================================================
@@ -294,19 +236,6 @@ function updatePerformanceDebug(shapes, start, end) {
     let duration = end-start;
     sendTextTOHTML("performance",
                         `# shapes: ${shapes} | ms: ${Math.floor(duration)} | fps: ${Math.floor(10000/duration)/10}`)
-}
-
-function colorChanged(htmlID) {
-    sendTextTOHTML("penColor", `Pen Color (current: #${(g_penColor[0]*255).toString(16).toUpperCase()}` +
-                                                    `${(g_penColor[1]*255).toString(16).toUpperCase()}` +
-                                                    `${(g_penColor[2]*255).toString(16).toUpperCase()})`);
-
-    let htmlElm = document.getElementById(htmlID);
-    if (!htmlElm) {
-        console.log(`Failed to get ${htmlID} from HTML.`);
-        return;
-    }
-    htmlElm.style.backgroundColor = `rgb(${g_penColor[0]*255}, ${g_penColor[1]*255}, ${g_penColor[2]*255})`;
 }
 
 function sendTextTOHTML(htmlID, text) {
