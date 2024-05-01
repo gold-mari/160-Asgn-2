@@ -37,7 +37,8 @@ let u_GlobalRotateMatrix;
 
 let g_upperAngle = 0;
 let g_lowerAngle = 0;
-let g_globalAngle = 0;
+let g_globalAngleX = 0;
+let g_globalAngleY = 0;
 let g_shapesList = [];
 
 // ================================================================
@@ -151,7 +152,7 @@ function addActionsForHTMLUI() {
     let camAngle = document.getElementById("camAngle")
     camAngle.addEventListener("input", function() {
         sendTextTOHTML("camAngleLabel", `Camera Angle (current: ${this.value})`);
-        g_globalAngle = this.value;
+        g_globalAngleX = this.value;
         renderAllShapes();
     });
 }
@@ -167,10 +168,12 @@ function clearCanvas() {
 
 function click(ev) {
 
-    if (g_penLocked) return;
-
     // Extract the event click and convert to WebGL canvas space
     let [x, y] = coordinatesEventToGLSpace(ev);
+
+    g_globalAngleX = x * -180;
+    g_globalAngleY = y * 180;
+    renderAllShapes();
 
 //     let shape = undefined;
 //     switch (g_penType) {
@@ -220,7 +223,9 @@ function renderAllShapes() {
     let startTime = performance.now();
 
     // Pass in the global angle matrix
-    let globalRotationMatrix = new Matrix4().rotate(g_globalAngle, 0, 1, 0);
+    let globalRotationMatrix = new Matrix4();
+    globalRotationMatrix.rotate(g_globalAngleX, 0, 1, 0);
+    globalRotationMatrix.rotate(g_globalAngleY, 1, 0, 0);
     gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotationMatrix.elements);
 
     // Clear <canvas>
@@ -254,8 +259,6 @@ function renderAllShapes() {
     // // Primitive testing
     // let cube = new Cube();
     // cube.render();
-
-    
 
     let ico = new Icosahedron();
     ico.setColor(1.0,0.2,0.8,1.0);
