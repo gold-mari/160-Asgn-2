@@ -227,29 +227,36 @@ function renderAllShapes() {
     clearCanvas();
 
     // Draw some cubes
-    let base = new Cube();
-    base.setColor(1.0,0.0,0.0,1.0);
-    base.matrix.translate(0, -0.9, 0);
-    base.matrix.scale(1, 1, 1);
-    base.render();
+    // let base = new Cube();
+    // base.setColor(1.0,0.0,0.0,1.0);
+    // base.matrix.translate(0, -0.9, 0);
+    // base.matrix.scale(1, 1, 1);
+    // base.render();
 
-    let lower = new Cube();
-    lower.setColor(1.0,1.0,0.0,1.0);
-    lower.matrix.translate(0, -0.5, 0);
-    lower.matrix.rotate(-g_lowerAngle, 0, 0, 1);
-    let lowerCoordsMatrix = new Matrix4(lower.matrix);
-    lower.matrix.scale(0.2, 1, 0.2);
-    lower.matrix.translate(0, 0.5, 0);
-    lower.render();
+    // let lower = new Cube();
+    // lower.setColor(1.0,1.0,0.0,1.0);
+    // lower.matrix.translate(0, -0.5, 0);
+    // lower.matrix.rotate(-g_lowerAngle, 0, 0, 1);
+    // let lowerCoordsMatrix = new Matrix4(lower.matrix);
+    // lower.matrix.scale(0.2, 1, 0.2);
+    // lower.matrix.translate(0, 0.5, 0);
+    // lower.render();
 
-    let upper = new Cube();
-    upper.setColor(1.0,0.0,1.0,1.0);
-    upper.matrix = lowerCoordsMatrix;
-    upper.matrix.translate(0, 1, 0);
-    upper.matrix.rotate(-g_upperAngle, 0, 0, 1);
-    upper.matrix.translate(0, 0.45, 0);
-    upper.matrix.scale(0.1, 1, 0.1);
-    upper.render();
+    // let upper = new Cube();
+    // upper.setColor(1.0,0.0,1.0,1.0);
+    // upper.matrix = lowerCoordsMatrix;
+    // upper.matrix.translate(0, 1, 0);
+    // upper.matrix.rotate(-g_upperAngle, 0, 0, 1);
+    // upper.matrix.translate(0, 0.45, 0);
+    // upper.matrix.scale(0.1, 1, 0.1);
+    // upper.render();
+
+    // // Primitive testing
+    // let cube = new Cube();
+    // cube.render();
+
+    let octo = new Octohedron();
+    octo.render();
 
     updatePerformanceDebug(2, startTime, performance.now());
 }
