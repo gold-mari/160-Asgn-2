@@ -35,8 +35,8 @@ let u_FragColor;
 let u_ModelMatrix;
 let u_GlobalRotateMatrix;
 
-let g_upperAngle = 0;
-let g_lowerAngle = 0;
+let g_rightUpperArm_Z = 0;
+let g_leftUpperArm_Z = 0;
 let g_globalAngle = [0, 0];
 let g_dragStartAngle = [0, 0];
 let g_dragStartMousePos = [0, 0]
@@ -129,27 +129,27 @@ function connectVariablesToGLSL() {
 
 function addActionsForHTMLUI() {
     // Initialize dynamic text
-    sendTextTOHTML("lowerAngleLabel", "Left Angle (current: 0)");
-    sendTextTOHTML("upperAngleLabel", "Right Angle (current: 0)");
+    sendTextTOHTML("leftUpperAngleLabel", "Left Upper Angle (current: 0)");
+    sendTextTOHTML("rightUpperAngleLabel", "Right Upper Angle (current: 0)");
     
     // Upper angle
-    let upperAngle = document.getElementById("upperAngle")
-    upperAngle.addEventListener("input", function() {
-        sendTextTOHTML("upperAngleLabel", `Right Angle (current: ${this.value})`);
-        g_upperAngle = this.value;
+    let rightUpperAngle = document.getElementById("rightUpperAngle");
+    rightUpperAngle.addEventListener("input", function() {
+        sendTextTOHTML("rightUpperAngleLabel", `Right Upper Angle (current: ${this.value})`);
+        g_rightUpperArm_Z = this.value;
         renderAllShapes();
     });
 
     // Lower angle
-    let lowerAngle = document.getElementById("lowerAngle")
-    lowerAngle.addEventListener("input", function() {
-        sendTextTOHTML("lowerAngleLabel", `Left Angle (current: ${this.value})`);
-        g_lowerAngle = this.value;
+    let leftUpperAngle = document.getElementById("leftUpperAngle");
+    leftUpperAngle.addEventListener("input", function() {
+        sendTextTOHTML("leftUpperAngleLabel", `Left Upper Angle (current: ${this.value})`);
+        g_leftUpperArm_Z = this.value;
         renderAllShapes();
     });
 
     // Camera angle
-    let resetCam = document.getElementById("resetCam")
+    let resetCam = document.getElementById("resetCam");
     resetCam.addEventListener("mousedown", function() {
         g_globalAngle = [0, 0];
         renderAllShapes();
@@ -305,7 +305,7 @@ function renderAllShapes() {
         sleeve.matrix.scale(1/0.5, 1/0.75, 1/0.5); // Undo parent scale
 
         sleeve.matrix.translate(armSign*0.1, 0.1, 0);
-        sleeve.matrix.rotate((side == "left") ? -g_lowerAngle : g_upperAngle, 0, 0, 1);
+        sleeve.matrix.rotate((side == "left") ? -g_leftUpperArm_Z : g_rightUpperArm_Z, 0, 0, 1);
 
         sleeve.matrix.translate(armSign*0.1, 0, 0); // Sets pivot to be tip of pyramid
         sleeve.matrix.rotate(armSign*90, 0, 0, 1);
