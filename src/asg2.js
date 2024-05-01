@@ -129,13 +129,13 @@ function connectVariablesToGLSL() {
 
 function addActionsForHTMLUI() {
     // Initialize dynamic text
-    sendTextTOHTML("lowerAngleLabel", "Lower Angle (current: 0)");
-    sendTextTOHTML("upperAngleLabel", "Upper Angle (current: 0)");
+    sendTextTOHTML("lowerAngleLabel", "Left Angle (current: 0)");
+    sendTextTOHTML("upperAngleLabel", "Right Angle (current: 0)");
     
     // Upper angle
     let upperAngle = document.getElementById("upperAngle")
     upperAngle.addEventListener("input", function() {
-        sendTextTOHTML("upperAngleLabel", `Upper Angle (current: ${this.value})`);
+        sendTextTOHTML("upperAngleLabel", `Right Angle (current: ${this.value})`);
         g_upperAngle = this.value;
         renderAllShapes();
     });
@@ -143,7 +143,7 @@ function addActionsForHTMLUI() {
     // Lower angle
     let lowerAngle = document.getElementById("lowerAngle")
     lowerAngle.addEventListener("input", function() {
-        sendTextTOHTML("lowerAngleLabel", `Lower Angle (current: ${this.value})`);
+        sendTextTOHTML("lowerAngleLabel", `Left Angle (current: ${this.value})`);
         g_lowerAngle = this.value;
         renderAllShapes();
     });
@@ -210,72 +210,114 @@ function renderAllShapes() {
     // Clear <canvas>
     clearCanvas();
 
-    let head = new Cube();
+    let robe = new Pyramid4();
+    robe.setColorHex("ff1158ff");
+    robe.matrix.translate(0, -0.1, 0);
+    robe.matrix.scale(0.5, 0.75, 0.5);
+    robe.render();
+
+    let head = new Cube(robe);
     head.setColorHex("6d5858ff");
-    head.matrix.scale(0.5, 0.5, 0.5);
+    head.matrix.scale(1/0.5, 1/0.75, 1/0.5); // Undo parent scale
+    
+    head.matrix.translate(0, 0.0, 0);
+    // head.matrix.rotate(-g_lowerAngle, 0, 0, 1);
+    // head.matrix.rotate(-g_upperAngle, 1, 0, 0);
+    head.matrix.translate(0, 0.3, 0);
+    head.matrix.scale(0.25, 0.25, 0.25);
     head.render();
+    // Render head decorations
+    {
+        let hair = new Cube(head);
+        hair.setColorHex("ffffffff");
+        hair.matrix.translate(0, 0, 0.2);
+        hair.matrix.scale(1.2, 1.1, 0.8);
+        hair.render();
 
-    let hair = new Cube(head);
-    hair.setColorHex("ffffffff");
-    hair.matrix.translate(0, 0, 0.2);
-    hair.matrix.scale(1.2, 1.1, 0.8);
-    hair.render();
+        let eyePositions = [0.25, -0.25];
+        eyePositions.forEach(eyePosition => {
+            let sclera = new Cube(head);
+            sclera.setColorHex("ffffffff");
+            sclera.matrix.translate(eyePosition, 0, -0.46);
+            sclera.matrix.scale(0.3, 0.2, 0.1);
+            sclera.render();
 
-    let eyePositions = [0.25, -0.25];
-    eyePositions.forEach(eyePosition => {
-        let sclera = new Cube(head);
-        sclera.setColorHex("ffffffff");
-        sclera.matrix.translate(eyePosition, 0, -0.46);
-        sclera.matrix.scale(0.3, 0.2, 0.1);
-        sclera.render();
+            let iris = new Cube(sclera);
+            iris.setColorHex("7799ccff");
+            iris.matrix.translate(-eyePosition, 0, -0.46);
+            iris.matrix.scale(0.4, 0.9, 0.1);
+            iris.render();
 
-        let iris = new Cube(sclera);
-        iris.setColorHex("7799ccff");
-        iris.matrix.translate(-eyePosition, 0, -0.46);
-        iris.matrix.scale(0.4, 0.9, 0.1);
-        iris.render();
+            let pupil = new Cube(iris);
+            pupil.setColorHex("000000ff");
+            pupil.matrix.translate(-eyePosition, -0.2, -0.46);
+            pupil.matrix.scale(0.5, 0.5, 1);
+            pupil.render();
 
-        let pupil = new Cube(iris);
-        pupil.setColorHex("000000ff");
-        pupil.matrix.translate(-eyePosition, -0.2, -0.46);
-        pupil.matrix.scale(0.5, 0.5, 1);
-        pupil.render();
+            let brow = new Cube(sclera);
+            brow.setColorHex("442200ff");
+            brow.matrix.rotate(eyePosition*80, 0, 0, 1);
+            brow.matrix.translate(eyePosition, 1, -0.46);
+            brow.matrix.scale(1, 0.75, 0.1);
+            brow.render();
+        });
 
-        let brow = new Cube(sclera);
-        brow.setColorHex("442200ff");
-        brow.matrix.rotate(eyePosition*80, 0, 0, 1);
-        brow.matrix.translate(eyePosition, 1, -0.46);
-        brow.matrix.scale(1, 0.75, 0.1);
-        brow.render();
+        let mouth = new Pyramid4(head);
+        mouth.setColorHex("000000ff");
+        mouth.matrix.translate(0, -0.25, -0.5);
+        mouth.matrix.scale(0.3, -0.1, 0.01);
+        mouth.render();
+
+        let tongue = new Octahedron(mouth);
+        tongue.setColorHex("ff1158ff");
+        tongue.matrix.scale(0.8, 1, 1);
+        tongue.render();
+
+        let beard = new Octahedron(head);
+        beard.setColorHex("ffffffff");
+        beard.matrix.translate(0, -0.7, 0);
+        beard.matrix.scale(2, 2, 2);
+        beard.render();
+
+        let hat = new Pyramid4(head);
+        hat.setColorHex("ff1158ff");
+        hat.matrix.translate(0, 1.1, 0);
+        hat.matrix.scale(1, 1.2, 1);
+        hat.render();
+
+        let hatBrim = new Cube(hat);
+        hatBrim.matrix.translate(0, -0.5, 0);
+        hatBrim.matrix.scale(2, 0.1, 2);
+        hatBrim.render();
+
+        let hatBauble = new Icosahedron(hat)
+        hatBauble.setColorHex("ffbb22ff");
+        hatBauble.matrix.translate(0, 0.5, 0);
+        hatBauble.matrix.scale(0.3, 0.3/1.2, 0.3);
+        hatBauble.render();
+    }
+    
+    let arms = ["left", "right"]
+    arms.forEach(side => {
+        let armSign = (side == "left") ? -1 : 1;
+
+        let sleeve = new Pyramid4(robe);
+        sleeve.matrix.scale(1/0.5, 1/0.75, 1/0.5); // Undo parent scale
+
+        sleeve.matrix.translate(armSign*0.1, 0.1, 0);
+        sleeve.matrix.rotate((side == "left") ? -g_lowerAngle : g_upperAngle, 0, 0, 1);
+
+        sleeve.matrix.translate(armSign*0.1, 0, 0); // Sets pivot to be tip of pyramid
+        sleeve.matrix.rotate(armSign*90, 0, 0, 1);
+        sleeve.matrix.scale(0.2, 0.2, 0.2);
+        sleeve.render();
+
+        let arm = new Pyramid4(sleeve);
+        arm.setColorHex("6d5858ff");
+        arm.matrix.translate(0, -1, 0);
+        arm.matrix.scale(0.5, -1, 0.5);
+        arm.render();
     });
-
-    let mouth = new Pyramid4(head);
-    mouth.setColorHex("000000ff");
-    mouth.matrix.translate(0, -0.25, -0.5);
-    mouth.matrix.scale(0.3, -0.1, 0.01);
-    mouth.render();
-
-    let tongue = new Octahedron(mouth);
-    tongue.setColorHex("ff1158ff");
-    tongue.matrix.scale(0.8, 1, 1);
-    tongue.render();
-
-    let beard = new Octahedron(head);
-    beard.setColorHex("ffffffff");
-    beard.matrix.translate(0, -0.7, 0);
-    beard.matrix.scale(2, 2, 2);
-    beard.render();
-
-    let hat = new Pyramid4(head);
-    hat.setColorHex("ff1158ff");
-    hat.matrix.translate(0, 1.1, 0);
-    hat.matrix.scale(1, 1.2, 1);
-    hat.render();
-
-    let hatBrim = new Cube(hat);
-    hatBrim.matrix.translate(0, -0.5, 0);
-    hatBrim.matrix.scale(2, 0.1, 2);
-    hatBrim.render();
 
     updatePerformanceDebug(2, startTime, performance.now());
 }
