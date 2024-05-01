@@ -35,11 +35,9 @@ let u_FragColor;
 let u_ModelMatrix;
 let u_GlobalRotateMatrix;
 
-let g_penLocked = false;
-let g_penColor = [1.0, 1.0, 1.0, 1.0];
-let g_penSize = 10.0;
+let g_upperAngle = 0;
+let g_lowerAngle = 0;
 let g_globalAngle = 0;
-let g_penType = POINT;
 let g_shapesList = [];
 
 // ================================================================
@@ -129,9 +127,27 @@ function connectVariablesToGLSL() {
 
 function addActionsForHTMLUI() {
     // Initialize dynamic text
+    sendTextTOHTML("lowerAngleLabel", "Lower Angle (current: 0)");
+    sendTextTOHTML("upperAngleLabel", "Upper Angle (current: 0)");
     sendTextTOHTML("camAngleLabel", "Camera Angle (current: 0)");
     
-    // Circle segment count slider
+    // Upper angle
+    let upperAngle = document.getElementById("upperAngle")
+    upperAngle.addEventListener("input", function() {
+        sendTextTOHTML("upperAngleLabel", `Upper Angle (current: ${this.value})`);
+        g_upperAngle = this.value;
+        renderAllShapes();
+    });
+
+    // Lower angle
+    let lowerAngle = document.getElementById("lowerAngle")
+    lowerAngle.addEventListener("input", function() {
+        sendTextTOHTML("lowerAngleLabel", `Lower Angle (current: ${this.value})`);
+        g_lowerAngle = this.value;
+        renderAllShapes();
+    });
+
+    // Camera angle
     let camAngle = document.getElementById("camAngle")
     camAngle.addEventListener("input", function() {
         sendTextTOHTML("camAngleLabel", `Camera Angle (current: ${this.value})`);
@@ -213,23 +229,27 @@ function renderAllShapes() {
     // Draw some cubes
     let base = new Cube();
     base.setColor(1.0,0.0,0.0,1.0);
-    base.matrix.translate(0, -0.5, 0);
-    base.matrix.scale(1, 0.1, 1);
+    base.matrix.translate(0, -0.9, 0);
+    base.matrix.scale(1, 1, 1);
     base.render();
 
-    let arm1 = new Cube();
-    arm1.setColor(1.0,1.0,0.0,1.0);
-    arm1.matrix.translate(0, 0, 0);
-    arm1.matrix.rotate(0, 0, 0, 1);
-    arm1.matrix.scale(0.2, 1, 0.2);
-    arm1.render();
+    let lower = new Cube();
+    lower.setColor(1.0,1.0,0.0,1.0);
+    lower.matrix.translate(0, -0.5, 0);
+    lower.matrix.rotate(-g_lowerAngle, 0, 0, 1);
+    let lowerCoordsMatrix = new Matrix4(lower.matrix);
+    lower.matrix.scale(0.2, 1, 0.2);
+    lower.matrix.translate(0, 0.5, 0);
+    lower.render();
 
-    let arm2 = new Cube();
-    arm2.setColor(1.0,0.0,1.0,1.0);
-    arm2.matrix.translate(0.3, 0.4, 0);
-    arm2.matrix.rotate(80, 0, 0, 1);
-    arm2.matrix.scale(0.1, 0.7, 0.1);
-    arm2.render();
+    let upper = new Cube();
+    upper.setColor(1.0,0.0,1.0,1.0);
+    upper.matrix = lowerCoordsMatrix;
+    upper.matrix.translate(0, 1, 0);
+    upper.matrix.rotate(-g_upperAngle, 0, 0, 1);
+    upper.matrix.translate(0, 0.45, 0);
+    upper.matrix.scale(0.1, 1, 0.1);
+    upper.render();
 
     updatePerformanceDebug(2, startTime, performance.now());
 }
