@@ -76,7 +76,7 @@ function main() {
     canvas.onmousemove = function(ev) { if(ev.buttons == 1) { click(ev, false); } };
 
     // Specify the color for clearing <canvas>
-    gl.clearColor(0.0, 0.9, 0.8, 1.0);
+    gl.clearColor(0.0, 0.9, 0.9, 1.0);
 
     // Clear <canvas>
     renderAllShapes();
@@ -362,6 +362,10 @@ function renderAllShapes() {
 
             let brow = new Cube(sclera);
             brow.setColorHex("442200ff");
+
+            if (eyePosition == 0.25) { // only one eyebrow
+                brow.matrix.translate(0, anims.rattle*0.2, 0);    
+            }
             brow.matrix.rotate(eyePosition*80, 0, 0, 1);
             brow.matrix.translate(eyePosition, 1, -0.46);
             brow.matrix.scale(1, 0.75, 0.1);
