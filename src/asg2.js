@@ -62,7 +62,7 @@ function main() {
     canvas.onmousemove = function(ev) { if(ev.buttons == 1) { click(ev, false); } };
 
     // Specify the color for clearing <canvas>
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clearColor(0.0, 0.9, 0.8, 1.0);
 
     // Clear <canvas>
     renderAllShapes();
@@ -178,31 +178,6 @@ function click(ev, dragStart) {
     g_globalAngle[0] = g_dragStartAngle[0] + ((x - g_dragStartMousePos[0]) * -180);
     g_globalAngle[1] = g_dragStartAngle[1] + ((y - g_dragStartMousePos[1]) * 180);
     renderAllShapes();
-
-//     let shape = undefined;
-//     switch (g_penType) {
-//         case POINT:
-//             shape = new Point();
-//             break;
-//         case TRIANGLE:
-//             shape = new Triangle();
-//             break;
-//         case CIRCLE:
-//             shape = new Circle();
-//             shape.setSegments(g_circleSegments);
-//             break;
-//     }
-    
-//     if (shape != undefined) {
-//         shape.setPosition(x, y, 0.0);
-//         shape.setColor(...g_penColor);
-//         shape.setSize(g_penSize);
-
-//         g_shapesList.push(shape);
-
-//         // Draw every shape that's supposed to be on the canvas.
-//         renderAllShapes();
-//     }
 }
 
 // ================================================================
@@ -235,7 +210,78 @@ function renderAllShapes() {
     // Clear <canvas>
     clearCanvas();
 
-    // Draw some cubes
+    let head = new Cube();
+    head.setColorHex("6d5858ff");
+    head.matrix.scale(0.5, 0.5, 0.5);
+    head.render();
+
+    let hair = new Cube(head);
+    hair.setColorHex("ffffffff");
+    hair.matrix.translate(0, 0, 0.2);
+    hair.matrix.scale(1.2, 1.1, 0.8);
+    hair.render();
+
+    let eyePositions = [0.25, -0.25];
+    eyePositions.forEach(eyePosition => {
+        let sclera = new Cube(head);
+        sclera.setColorHex("ffffffff");
+        sclera.matrix.translate(eyePosition, 0, -0.46);
+        sclera.matrix.scale(0.3, 0.2, 0.1);
+        sclera.render();
+
+        let iris = new Cube(sclera);
+        iris.setColorHex("7799ccff");
+        iris.matrix.translate(-eyePosition, 0, -0.46);
+        iris.matrix.scale(0.4, 0.9, 0.1);
+        iris.render();
+
+        let pupil = new Cube(iris);
+        pupil.setColorHex("000000ff");
+        pupil.matrix.translate(-eyePosition, -0.2, -0.46);
+        pupil.matrix.scale(0.5, 0.5, 1);
+        pupil.render();
+
+        let brow = new Cube(sclera);
+        brow.setColorHex("442200ff");
+        brow.matrix.rotate(eyePosition*80, 0, 0, 1);
+        brow.matrix.translate(eyePosition, 1, -0.46);
+        brow.matrix.scale(1, 0.75, 0.1);
+        brow.render();
+    });
+
+    let mouth = new Pyramid4(head);
+    mouth.setColorHex("000000ff");
+    mouth.matrix.translate(0, -0.25, -0.5);
+    mouth.matrix.scale(0.3, -0.1, 0.01);
+    mouth.render();
+
+    let tongue = new Octahedron(mouth);
+    tongue.setColorHex("ff1158ff");
+    tongue.matrix.scale(0.8, 1, 1);
+    tongue.render();
+
+    let beard = new Octahedron(head);
+    beard.setColorHex("ffffffff");
+    beard.matrix.translate(0, -0.7, 0);
+    beard.matrix.scale(2, 2, 2);
+    beard.render();
+
+    let hat = new Pyramid4(head);
+    hat.setColorHex("ff1158ff");
+    hat.matrix.translate(0, 1.1, 0);
+    hat.matrix.scale(1, 1.2, 1);
+    hat.render();
+
+    let hatBrim = new Cube(hat);
+    hatBrim.matrix.translate(0, -0.5, 0);
+    hatBrim.matrix.scale(2, 0.1, 2);
+    hatBrim.render();
+
+    updatePerformanceDebug(2, startTime, performance.now());
+}
+
+// Robot arm
+    // // Draw some cubes
     // let base = new Cube();
     // base.setColor(1.0,0.0,0.0,1.0);
     // base.matrix.translate(0, -0.9, 0);
@@ -259,31 +305,6 @@ function renderAllShapes() {
     // upper.matrix.translate(0, 0.45, 0);
     // upper.matrix.scale(0.1, 1, 0.1);
     // upper.render();
-
-    // // Primitive testing
-    // let cube = new Cube();
-    // cube.render();
-
-    let ico = new Icosahedron();
-    ico.setColor(1.0,0.2,0.8,1.0);
-    ico.matrix.translate(0, 0.5, 0);
-    ico.matrix.scale(0.5, 0.5, 0.5);
-    ico.render();
-
-    let octa = new Octahedron();
-    octa.setColor(0.2,1.0,0.8,1.0);
-    octa.matrix.translate(0, 0, 0);
-    octa.matrix.scale(0.5, 0.5, 0.5);
-    octa.render();
-
-    let pyr4 = new Pyramid4();
-    pyr4.setColor(0.2,0.8,0.2,1.0);
-    pyr4.matrix.translate(0, -0.5, 0);
-    pyr4.matrix.scale(0.5, 0.5, 0.5);
-    pyr4.render();
-
-    updatePerformanceDebug(2, startTime, performance.now());
-}
 
 // ================================================================
 // Utility methods

@@ -1,7 +1,7 @@
 class Icosahedron extends Polyhedron {
     
-    constructor() {
-        super();
+    constructor(parent) {
+        super(parent);
         this.type = "icosahedron";
     }
 

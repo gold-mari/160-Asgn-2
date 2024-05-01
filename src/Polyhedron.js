@@ -2,7 +2,7 @@ class Polyhedron {
 
     // Constructor and setters ====
 
-    constructor() {
+    constructor(parent) {
         this.type = undefined;
         this.color = {
             r: 1.0,
@@ -11,11 +11,27 @@ class Polyhedron {
             a: 1.0
         };
 
-        this.matrix = new Matrix4();
+        if (!parent) {
+            this.matrix = new Matrix4();
+        } else {
+            this.matrix = new Matrix4(parent.matrix);
+            this.color = parent.color;
+        }
     }
 
     setColor(r, g, b, a) {
         this.color = {r, g, b, a};
+    }
+
+    setColorHex(hex) {
+        // Regex from https://stackoverflow.com/a/6259543
+        let hexChunks = hex.match(/.{1,2}/g);
+        this.color = {
+            r: Number(`0x${hexChunks[0]}`)/255,
+            g: Number(`0x${hexChunks[1]}`)/255,
+            b: Number(`0x${hexChunks[2]}`)/255,
+            a: Number(`0x${hexChunks[3]}`)/255
+        };
     }
 
     // Render methods ====

@@ -1,7 +1,7 @@
 class Octahedron extends Polyhedron {
     
-    constructor() {
-        super();
+    constructor(parent) {
+        super(parent);
         this.type = "octahedron";
     }
 
