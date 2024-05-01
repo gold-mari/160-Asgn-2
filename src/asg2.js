@@ -7,8 +7,9 @@ var VSHADER_SOURCE = `
     attribute vec4 a_Position;
     uniform mat4 u_ModelMatrix;
     uniform mat4 u_GlobalRotateMatrix;
+    uniform mat4 u_GlobalScaleMatrix;
     void main() {
-        gl_Position = u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
+        gl_Position = u_GlobalScaleMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
     }`;
 
 // Fragment shader program
@@ -41,7 +42,9 @@ let g_leftUpperArm_Roll = -40;
 let g_leftUpperArm_Yaw = 45;
 let g_leftLowerArm_Angle = 75;
 let g_leftHand_Angle = 90;
+
 let g_globalAngle = [0, 0];
+let g_globalScale = 1;
 let g_dragStartAngle = [0, 0];
 let g_dragStartMousePos = [0, 0]
 let g_shapesList = [];
@@ -74,6 +77,12 @@ function main() {
     canvas.onmousedown = function(ev) { click(ev, true) };
     // If the mouse is down, draw.
     canvas.onmousemove = function(ev) { if(ev.buttons == 1) { click(ev, false); } };
+
+    // Register function to be called on mouse scroll
+    canvas.addEventListener('wheel', function(event){
+        scroll(event);
+        event.preventDefault();
+    }, false);
 
     // Specify the color for clearing <canvas>
     gl.clearColor(0.0, 0.9, 0.9, 1.0);
@@ -164,6 +173,12 @@ function connectVariablesToGLSL() {
     u_GlobalRotateMatrix = gl.getUniformLocation(gl.program, 'u_GlobalRotateMatrix');
     if (!u_GlobalRotateMatrix) {
         console.log("Failed to get u_GlobalRotateMatrix variable");
+        return;
+    }
+
+    u_GlobalScaleMatrix = gl.getUniformLocation(gl.program, 'u_GlobalScaleMatrix');
+    if (!u_GlobalScaleMatrix) {
+        console.log("Failed to get u_GlobalScaleMatrix variable");
         return;
     }
 
@@ -283,6 +298,12 @@ function click(ev, dragStart) {
     renderAllShapes();
 }
 
+function scroll(ev) {
+    console.log(ev.deltaY);
+
+    g_globalScale = Math.max(0, g_globalScale + Number(-ev.deltaY*0.001))
+}
+
 // ================================================================
 // Render methods
 // ================================================================
@@ -304,11 +325,14 @@ function renderAllShapes() {
     // Store the time at the start of this function.
     let startTime = performance.now();
 
-    // Pass in the global angle matrix
+    // Pass in the global angle and scale matrix
     let globalRotationMatrix = new Matrix4();
     globalRotationMatrix.rotate(g_globalAngle[0], 0, 1, 0);
     globalRotationMatrix.rotate(g_globalAngle[1], 1, 0, 0);
     gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotationMatrix.elements);
+    let globalScaleMatrix = new Matrix4();
+    globalScaleMatrix.scale(g_globalScale, g_globalScale, g_globalScale);
+    gl.uniformMatrix4fv(u_GlobalScaleMatrix, false, globalScaleMatrix.elements);
 
     // Clear <canvas>
     clearCanvas();
