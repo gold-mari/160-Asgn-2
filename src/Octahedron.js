@@ -1,15 +1,15 @@
-class Octohedron extends Polyhedron {
+class Octahedron extends Polyhedron {
     
     constructor() {
         super();
-        this.type = "octohedron";
+        this.type = "octahedron";
     }
 
-    getVertices() {
-        return Octohedron.vertices;
+    getTriangles() {
+        return Octahedron.triangles;
     }
 
-    static vertices = [
+    static triangles = [
         // Top
             // Front
             [-0.5,0,-0.5,  0,0.5,0,  0.5,0,-0.5],    

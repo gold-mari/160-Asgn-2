@@ -255,7 +255,7 @@ function renderAllShapes() {
     // let cube = new Cube();
     // cube.render();
 
-    let octo = new Octohedron();
+    let octo = new Octahedron();
     octo.render();
 
     updatePerformanceDebug(2, startTime, performance.now());

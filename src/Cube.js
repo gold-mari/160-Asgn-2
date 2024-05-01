@@ -1,15 +1,15 @@
 class Cube extends Polyhedron {
-    
+
     constructor() {
         super();
         this.type = "cube";
     }
 
-    getVertices() {
-        return Cube.vertices;
+    getTriangles() {
+        return Cube.triangles;
     }
 
-    static vertices = [
+    static triangles = [
         // Front
         [-0.5,-0.5,-0.5,  0.5,0.5,-0.5,  0.5,-0.5,-0.5],  
         [-0.5,-0.5,-0.5,  0.5,0.5,-0.5,  -0.5,0.5,-0.5],  

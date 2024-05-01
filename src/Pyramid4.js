@@ -5,11 +5,11 @@ class Pyramid4 extends Polyhedron {
         this.type = "pyramid4";
     }
 
-    getVertices() {
-        return Pyramid4.vertices;
+    getTriangles() {
+        return Pyramid4.triangles;
     }
 
-    static vertices = [
+    static triangles = [
         // Front
         [-0.5,-0.5,-0.5,  0,0.5,0,  0.5,-0.5,-0.5],    
         // Back

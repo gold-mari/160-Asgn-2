@@ -24,20 +24,20 @@ class Polyhedron {
         gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements);
 
         // Pass the color of a point to u_FragColor variable
-        let verts = this.getVertices();
+        let triangles = this.getTriangles();
         let falloffPer = 0.05;
 
-        for (let i = 0; i < verts.length; i++) {
+        for (let i = 0; i < triangles.length; i++) {
             let falloff = Math.max(1-(i)*falloffPer, 0);
             gl.uniform4f(u_FragColor, this.color.r*falloff, this.color.g*falloff, this.color.b*falloff, 1);
 
-            Triangle.drawTriangle3D(verts[i]);
+            Triangle.drawTriangle3D(triangles[i]);
         }
     }
 
-    getVertices() {
-        return Polyhedron.vertices;
+    getTriangles() {
+        return Polyhedron.triangles;
     }
 
-    static vertices = [];
+    static triangles = [];
 }
