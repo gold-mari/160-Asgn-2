@@ -1,5 +1,3 @@
-// HelloPoint1.js (c) 2012 matsuda
-
 // ================================================================
 // Global variables
 // ================================================================
@@ -35,18 +33,27 @@ let u_FragColor;
 let u_ModelMatrix;
 let u_GlobalRotateMatrix;
 
-let g_rightUpperArm_Roll = 0;
-let g_rightUpperArm_Yaw = 0;
-let g_rightLowerArm_X = 0;
-let g_rightHand_Angle = 0;
-let g_leftUpperArm_Roll = 0;
-let g_leftUpperArm_Yaw = 0;
-let g_leftLowerArm_X = 0;
-let g_leftHand_Angle = 0;
+let g_rightUpperArm_Roll = -10;
+let g_rightUpperArm_Yaw = 45;
+let g_rightLowerArm_Angle = 75;
+let g_rightHand_Angle = 45;
+let g_leftUpperArm_Roll = -40;
+let g_leftUpperArm_Yaw = 45;
+let g_leftLowerArm_Angle = 75;
+let g_leftHand_Angle = 90;
 let g_globalAngle = [0, 0];
 let g_dragStartAngle = [0, 0];
 let g_dragStartMousePos = [0, 0]
 let g_shapesList = [];
+
+let g_startTime = 0;
+let g_seconds = 0;
+let g_shudderTimer = 0;
+let anims = {
+    orbRot: 0,
+    orbOffset: [],
+    shudder: 0
+};
 
 // ================================================================
 // Main
@@ -73,12 +80,32 @@ function main() {
     // Clear <canvas>
     renderAllShapes();
 
+    g_startTime = performance.now()/1000;
     requestAnimationFrame(tick);
 }
 
 function tick() {
+    let delta = g_seconds;
+    g_seconds = performance.now()/1000 - g_startTime;
+    delta = g_seconds - delta;
+
     // Orbital rotation
     // g_globalAngle[0] = (g_globalAngle[0] + 0.25)%360;
+
+    anims.orbRot = (anims.orbRot+2)%360
+    anims.orbOffset = [
+        Math.random()*0.02,
+        Math.sin(g_seconds)*0.05,
+        Math.random()*0.01
+    ];
+    
+    anims.breath = Math.sin(g_seconds * 0.9).toFixed(3);    // Slow sine movement
+    anims.rattle = Math.random().toFixed(3);                // Per-frame random movement
+    if (g_shudderTimer > 0.2) {                             // Quick sampled-and-held movement
+        anims.shudder = anims.rattle;
+        g_shudderTimer = 0;
+    }
+    g_shudderTimer += delta;
 
     renderAllShapes();
 
@@ -146,14 +173,14 @@ function connectVariablesToGLSL() {
 
 function addActionsForHTMLUI() {
     // Initialize dynamic text
-    sendTextTOHTML("leftUpperRollLabel", "Left Upper Roll (current: 0)");
-    sendTextTOHTML("leftUpperYawLabel", "Left Upper Yaw (current: 0)");
-    sendTextTOHTML("leftLowerAngleLabel", "Left Lower Angle (current: 0)");
-    sendTextTOHTML("leftHandAngleLabel", "Left Hand Angle (current: 0)");
-    sendTextTOHTML("rightUpperRollLabel", "Right Upper Roll (current: 0)");
-    sendTextTOHTML("rightUpperYawLabel", "Right Upper Yaw (current: 0)");
-    sendTextTOHTML("rightLowerAngleLabel", "Right Lower Angle (current: 0)");
-    sendTextTOHTML("rightHandAngleLabel", "Right Hand Angle (current: 0)");
+    sendTextTOHTML("leftUpperRollLabel", `Left Upper Roll (current: ${g_leftUpperArm_Roll})`);
+    sendTextTOHTML("leftUpperYawLabel", `Left Upper Yaw (current: ${g_leftUpperArm_Yaw})`);
+    sendTextTOHTML("leftLowerAngleLabel", `Left Lower Angle (current: ${g_leftLowerArm_Angle})`);
+    sendTextTOHTML("leftHandAngleLabel", `Left Hand Angle (current: ${g_leftHand_Angle})`);
+    sendTextTOHTML("rightUpperRollLabel", `Right Upper Roll (current: ${g_rightUpperArm_Roll})`);
+    sendTextTOHTML("rightUpperYawLabel", `Right Upper Yaw (current: ${g_rightUpperArm_Yaw})`);
+    sendTextTOHTML("rightLowerAngleLabel", `Right Lower Angle (current: ${g_rightLowerArm_Angle})`);
+    sendTextTOHTML("rightHandAngleLabel", `Right Hand Angle (current: ${g_rightHand_Angle})`);
     
     // Right arm
     let rightUpperRoll = document.getElementById("rightUpperRoll");
@@ -173,7 +200,7 @@ function addActionsForHTMLUI() {
     let rightLowerAngle = document.getElementById("rightLowerAngle");
     rightLowerAngle.addEventListener("input", function() {
         sendTextTOHTML("rightLowerAngleLabel", `Right Lower Angle (current: ${this.value})`);
-        g_rightLowerArm_X = this.value;
+        g_rightLowerArm_Angle = this.value;
         renderAllShapes();
     });
 
@@ -202,7 +229,7 @@ function addActionsForHTMLUI() {
     let leftLowerAngle = document.getElementById("leftLowerAngle");
     leftLowerAngle.addEventListener("input", function() {
         sendTextTOHTML("leftLowerAngleLabel", `Left Lower Angle (current: ${this.value})`);
-        g_leftLowerArm_X = this.value;
+        g_leftLowerArm_Angle = this.value;
         renderAllShapes();
     });
 
@@ -275,7 +302,11 @@ function renderAllShapes() {
     // Clear <canvas>
     clearCanvas();
 
-    let robe = new Pyramid4();
+    let root = new Cube();
+    root.matrix.translate(0, -0.1, 0);
+    root.matrix.scale(1.25, 1.25, 1.25);
+
+    let robe = new Pyramid4(root);
     robe.setColorHex("ff1158ff");
     robe.matrix.translate(0, -0.1, 0);
     robe.matrix.scale(0.5, 0.75, 0.5);
@@ -284,9 +315,8 @@ function renderAllShapes() {
     let head = new Cube(robe);
     head.setColorHex("6d5858ff");
     head.matrix.scale(1/0.5, 1/0.75, 1/0.5); // Undo parent scale
-    head.matrix.translate(0, 0.0, 0);
-    // head.matrix.rotate(-g_lowerAngle, 0, 0, 1);
-    // head.matrix.rotate(-g_UpperRoll, 1, 0, 0);
+    head.matrix.translate(0, anims.breath*0.01, 0);
+    head.matrix.rotate(anims.breath, 0.2, 0, 1);
     head.matrix.translate(0, 0.3, 0);
     head.matrix.scale(0.25, 0.25, 0.25);
     head.render();
@@ -314,8 +344,9 @@ function renderAllShapes() {
 
             let pupil = new Cube(iris);
             pupil.setColorHex("000000ff");
-            pupil.matrix.translate(-eyePosition, -0.2, -0.46);
-            pupil.matrix.scale(0.5, 0.5, 1);
+            pupil.matrix.translate(anims.rattle*eyePosition*0.1, -anims.rattle*0.1, 0);
+            pupil.matrix.translate(-eyePosition*0.9, -0.1, -0.46);
+            pupil.matrix.scale(0.7, 0.7, 1);
             pupil.render();
 
             let brow = new Cube(sclera);
@@ -368,8 +399,15 @@ function renderAllShapes() {
         let sleeve = new Pyramid4(robe);
         sleeve.matrix.scale(1/0.5, 1/0.75, 1/0.5); // Undo parent scale
         sleeve.matrix.translate(armSign*0.1, 0.1, 0);
-        sleeve.matrix.rotate((side == "left") ? -g_leftUpperArm_Yaw : g_rightUpperArm_Yaw, 0, 1, 0);
-        sleeve.matrix.rotate((side == "left") ? -g_leftUpperArm_Roll : g_rightUpperArm_Roll, 0, 0, 1);
+
+        let baseYaw = (side == "left") ? -g_leftUpperArm_Yaw : g_rightUpperArm_Yaw;
+        let yaw = Number(anims.breath*5) + Number(anims.rattle*0.5) + Number(baseYaw);
+        sleeve.matrix.rotate(yaw, 0, 1, 0);
+
+        let baseRoll = (side == "left") ? -g_leftUpperArm_Roll : g_rightUpperArm_Roll;
+        let roll = Number(anims.shudder*3) + Number(anims.rattle*2) + Number(baseRoll);
+        sleeve.matrix.rotate(roll, 0, 0, 1);
+
         sleeve.matrix.translate(armSign*0.1, 0, 0); // Sets pivot to be tip of pyramid
         sleeve.matrix.rotate(armSign*90, 0, 0, 1);
         sleeve.matrix.scale(0.2, 0.2, 0.2);
@@ -378,7 +416,11 @@ function renderAllShapes() {
         let arm_pyr = new Pyramid4(sleeve);
         arm_pyr.setColorHex("6d5858ff");
         arm_pyr.matrix.translate(0, -0.5, 0);
-        arm_pyr.matrix.rotate((side == "left") ? g_leftLowerArm_X : g_rightLowerArm_X, 1, 0, 0);
+
+        let baseAngle = (side == "left") ? g_leftLowerArm_Angle : g_rightLowerArm_Angle
+        let angle = Number(anims.breath*5*-armSign) + Number(baseAngle);
+        arm_pyr.matrix.rotate(angle, 1, 0, 0);
+
         arm_pyr.matrix.translate(0, -0.5, 0); // Sets pivot to be tip of pyramid
         arm_pyr.matrix.scale(0.5, -1, 0.5);
         arm_pyr.render();
@@ -390,13 +432,25 @@ function renderAllShapes() {
         let hand = new Cube(arm_pyr);
         hand.matrix.scale(1/0.5, 1/-1, 1/0.5); // Undo parent scale
         hand.matrix.translate(armSign*-0.025, -0.4, 0);
-        hand.matrix.rotate((side == "left") ? -g_leftHand_Angle : -g_rightHand_Angle, 0, 0, 1);
+
+        baseAngle = (side == "left") ? -g_leftHand_Angle : g_rightHand_Angle;
+        angle = Number(anims.breath*10*armSign) + Number(anims.rattle*3) + Number(baseAngle);
+        hand.matrix.rotate(angle, 0, 0, 1);
         hand.matrix.translate(0, -0.25, 0); // Sets pivot to be bottom of cube
         hand.matrix.scale(0.2, 0.5, 0.5);
         hand.render();
     });
 
-    updatePerformanceDebug(2, startTime, performance.now());
+    let orb = new Icosahedron(root);
+    orb.setColorHex("ffff00ff");
+    orb.setShadingIntensity(0.1);
+    orb.matrix.translate(...anims.orbOffset);
+    orb.matrix.translate(0, -0.2, -0.5);
+    orb.matrix.scale(0.25, 0.25, 0.25);
+    orb.matrix.rotate(anims.orbRot, 1, 2, 3);
+    orb.render();
+
+    updatePerformanceDebug("a lot", startTime, performance.now());
 }
 
 // ================================================================
