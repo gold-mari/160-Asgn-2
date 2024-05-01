@@ -35,9 +35,11 @@ let u_FragColor;
 let u_ModelMatrix;
 let u_GlobalRotateMatrix;
 
-let g_rightUpperArm_Z = 0;
+let g_rightUpperArm_Roll = 0;
+let g_rightUpperArm_Yaw = 0;
 let g_rightLowerArm_X = 0;
-let g_leftUpperArm_Z = 0;
+let g_leftUpperArm_Roll = 0;
+let g_leftUpperArm_Yaw = 0;
 let g_leftLowerArm_X = 0;
 let g_globalAngle = [0, 0];
 let g_dragStartAngle = [0, 0];
@@ -131,16 +133,25 @@ function connectVariablesToGLSL() {
 
 function addActionsForHTMLUI() {
     // Initialize dynamic text
-    sendTextTOHTML("leftUpperAngleLabel", "Left Upper Angle (current: 0)");
+    sendTextTOHTML("leftUpperRollLabel", "Left Upper Roll (current: 0)");
+    sendTextTOHTML("leftUpperYawLabel", "Left Upper Yaw (current: 0)");
     sendTextTOHTML("leftLowerAngleLabel", "Left Lower Angle (current: 0)");
-    sendTextTOHTML("rightUpperAngleLabel", "Right Upper Angle (current: 0)");
+    sendTextTOHTML("rightUpperRollLabel", "Right Upper Roll (current: 0)");
+    sendTextTOHTML("rightUpperYawLabel", "Right Upper Yaw (current: 0)");
     sendTextTOHTML("rightLowerAngleLabel", "Right Lower Angle (current: 0)");
     
     // Right arm
-    let rightUpperAngle = document.getElementById("rightUpperAngle");
-    rightUpperAngle.addEventListener("input", function() {
-        sendTextTOHTML("rightUpperAngleLabel", `Right Upper Angle (current: ${this.value})`);
-        g_rightUpperArm_Z = this.value;
+    let rightUpperRoll = document.getElementById("rightUpperRoll");
+    rightUpperRoll.addEventListener("input", function() {
+        sendTextTOHTML("rightUpperRollLabel", `Right Upper Roll (current: ${this.value})`);
+        g_rightUpperArm_Roll = this.value;
+        renderAllShapes();
+    });
+
+    let rightUpperYaw = document.getElementById("rightUpperYaw");
+    rightUpperYaw.addEventListener("input", function() {
+        sendTextTOHTML("rightUpperYawLabel", `Right Upper Yaw (current: ${this.value})`);
+        g_rightUpperArm_Yaw = this.value;
         renderAllShapes();
     });
 
@@ -152,10 +163,17 @@ function addActionsForHTMLUI() {
     });
 
     // Left arm
-    let leftUpperAngle = document.getElementById("leftUpperAngle");
-    leftUpperAngle.addEventListener("input", function() {
-        sendTextTOHTML("leftUpperAngleLabel", `Left Upper Angle (current: ${this.value})`);
-        g_leftUpperArm_Z = this.value;
+    let leftUpperRoll = document.getElementById("leftUpperRoll");
+    leftUpperRoll.addEventListener("input", function() {
+        sendTextTOHTML("leftUpperRollLabel", `Left Upper Roll (current: ${this.value})`);
+        g_leftUpperArm_Roll = this.value;
+        renderAllShapes();
+    });
+
+    let leftUpperYaw = document.getElementById("leftUpperYaw");
+    leftUpperYaw.addEventListener("input", function() {
+        sendTextTOHTML("leftUpperYawLabel", `Left Upper Yaw (current: ${this.value})`);
+        g_leftUpperArm_Yaw = this.value;
         renderAllShapes();
     });
 
@@ -240,7 +258,7 @@ function renderAllShapes() {
     
     head.matrix.translate(0, 0.0, 0);
     // head.matrix.rotate(-g_lowerAngle, 0, 0, 1);
-    // head.matrix.rotate(-g_upperAngle, 1, 0, 0);
+    // head.matrix.rotate(-g_UpperRoll, 1, 0, 0);
     head.matrix.translate(0, 0.3, 0);
     head.matrix.scale(0.25, 0.25, 0.25);
     head.render();
@@ -323,7 +341,8 @@ function renderAllShapes() {
         sleeve.matrix.scale(1/0.5, 1/0.75, 1/0.5); // Undo parent scale
 
         sleeve.matrix.translate(armSign*0.1, 0.1, 0);
-        sleeve.matrix.rotate((side == "left") ? -g_leftUpperArm_Z : g_rightUpperArm_Z, 0, 0, 1);
+        sleeve.matrix.rotate((side == "left") ? -g_leftUpperArm_Yaw : g_rightUpperArm_Yaw, 0, 1, 0);
+        sleeve.matrix.rotate((side == "left") ? -g_leftUpperArm_Roll : g_rightUpperArm_Roll, 0, 0, 1);
 
         sleeve.matrix.translate(armSign*0.1, 0, 0); // Sets pivot to be tip of pyramid
         sleeve.matrix.rotate(armSign*90, 0, 0, 1);
@@ -366,7 +385,7 @@ function renderAllShapes() {
     // upper.setColor(1.0,0.0,1.0,1.0);
     // upper.matrix = lowerCoordsMatrix;
     // upper.matrix.translate(0, 1, 0);
-    // upper.matrix.rotate(-g_upperAngle, 0, 0, 1);
+    // upper.matrix.rotate(-g_UpperRoll, 0, 0, 1);
     // upper.matrix.translate(0, 0.45, 0);
     // upper.matrix.scale(0.1, 1, 0.1);
     // upper.render();
