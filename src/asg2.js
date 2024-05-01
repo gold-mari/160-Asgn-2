@@ -211,19 +211,25 @@ function renderAllShapes() {
     clearCanvas();
 
     // Draw some cubes
-    let body = new Cube();
-    body.setColor(1.0,0.0,0.0,1.0);
-    body.matrix.translate(-0.25, -0.5, 0.0);
-    body.matrix.scale(0.5, 1, -0.5);
-    body.render();
+    let base = new Cube();
+    base.setColor(1.0,0.0,0.0,1.0);
+    base.matrix.translate(0, -0.5, 0);
+    base.matrix.scale(1, 0.1, 1);
+    base.render();
 
-    // // Draw a left arm
-    let leftArm = new Cube();
-    leftArm.setColor(1.0,1.0,0.0,1.0);
-    leftArm.matrix.translate(0.7, 0.0, 0.0);
-    leftArm.matrix.rotate(45, 0, 0, 1);
-    leftArm.matrix.scale(0.25, 0.7, 0.5);
-    leftArm.render();
+    let arm1 = new Cube();
+    arm1.setColor(1.0,1.0,0.0,1.0);
+    arm1.matrix.translate(0, 0, 0);
+    arm1.matrix.rotate(0, 0, 0, 1);
+    arm1.matrix.scale(0.2, 1, 0.2);
+    arm1.render();
+
+    let arm2 = new Cube();
+    arm2.setColor(1.0,0.0,1.0,1.0);
+    arm2.matrix.translate(0.3, 0.4, 0);
+    arm2.matrix.rotate(80, 0, 0, 1);
+    arm2.matrix.scale(0.1, 0.7, 0.1);
+    arm2.render();
 
     updatePerformanceDebug(2, startTime, performance.now());
 }

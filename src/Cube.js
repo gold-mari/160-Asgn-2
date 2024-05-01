@@ -24,38 +24,41 @@ class Cube {
         gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements);
 
         // Pass the color of a point to u_FragColor variable
-        let verts = Cube.vertices;
-        let falloffPer = 0.1;
-        let falloff = 1;
-        for (let i = 0; i < 6; i++) {
-            falloff = Math.max(1-(i)*falloffPer, 0);
+        let verts = this.getVertices();
+        let falloffPer = 0.05;
+
+        for (let i = 0; i < verts.length; i++) {
+            let falloff = Math.max(1-(i)*falloffPer, 0);
             gl.uniform4f(u_FragColor, this.color.r*falloff, this.color.g*falloff, this.color.b*falloff, 1);
 
-            Triangle.drawTriangle3D(verts[i*2]);
-            Triangle.drawTriangle3D(verts[(i*2)+1]);
+            Triangle.drawTriangle3D(verts[i]);
         }
+    }
+
+    getVertices() {
+        return Cube.vertices;
     }
 
     static vertices = [
         // Front
-        [0,0,0,  1,1,0,  1,0,0],
-        [0,0,0,  1,1,0,  0,1,0],
+        [-0.5,-0.5,-0.5,  0.5,0.5,-0.5,  0.5,-0.5,-0.5],  
+        [-0.5,-0.5,-0.5,  0.5,0.5,-0.5,  -0.5,0.5,-0.5],  
         // Back
-        [0,0,1,  1,1,1,  1,0,1],
-        [0,0,1,  1,1,1,  0,1,1],
+        [-0.5,-0.5,0.5,  0.5,0.5,0.5,  0.5,-0.5,0.5],  
+        [-0.5,-0.5,0.5,  0.5,0.5,0.5,  -0.5,0.5,0.5],  
 
         // Left
-        [0,1,0, 0,0,1, 0,0,0],
-        [0,1,0, 0,0,1, 0,1,1],
+        [-0.5,0.5,-0.5,  -0.5,-0.5,0.5,  -0.5,-0.5,-0.5],  
+        [-0.5,0.5,-0.5,  -0.5,-0.5,0.5,  -0.5,0.5,0.5],  
         // Right
-        [1,1,0, 1,0,1, 1,0,0],
-        [1,1,0, 1,0,1, 1,1,1],
+        [0.5,0.5,-0.5,  0.5,-0.5,0.5,  0.5,-0.5,-0.5],  
+        [0.5,0.5,-0.5,  0.5,-0.5,0.5,  0.5,0.5,0.5],  
 
         // Top
-        [0,1,0,  1,1,1,  0,1,1],
-        [0,1,0,  1,1,1,  1,1,0],
+        [-0.5,0.5,-0.5,  0.5,0.5,0.5,  -0.5,0.5,0.5],  
+        [-0.5,0.5,-0.5,  0.5,0.5,0.5,  0.5,0.5,-0.5],  
         // Bottom
-        [0,0,0,  1,0,1,  0,0,1],
-        [0,0,0,  1,0,1,  1,0,0]
+        [-0.5,-0.5,-0.5,  0.5,-0.5,0.5,  -0.5,-0.5,0.5],  
+        [-0.5,-0.5,-0.5,  0.5,-0.5,0.5,  0.5,-0.5,-0.5]
     ];
 }
