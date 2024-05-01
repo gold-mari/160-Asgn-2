@@ -25,10 +25,10 @@ class Polyhedron {
 
         // Pass the color of a point to u_FragColor variable
         let triangles = this.getTriangles();
-        let falloffPer = 0.05;
+        let finalFalloff = 0.5;
 
         for (let i = 0; i < triangles.length; i++) {
-            let falloff = Math.max(1-(i)*falloffPer, 0);
+            let falloff = Polyhedron.lerp(1, finalFalloff, (i/triangles.length));
             gl.uniform4f(u_FragColor, this.color.r*falloff, this.color.g*falloff, this.color.b*falloff, 1);
 
             Triangle.drawTriangle3D(triangles[i]);
@@ -40,4 +40,8 @@ class Polyhedron {
     }
 
     static triangles = [];
+
+    static lerp(start, end, amount) {
+        return (1-amount)*start + amount*end;
+    }
 }

@@ -255,8 +255,25 @@ function renderAllShapes() {
     // let cube = new Cube();
     // cube.render();
 
-    let octo = new Octahedron();
-    octo.render();
+    
+
+    let ico = new Icosahedron();
+    ico.setColor(1.0,0.2,0.8,1.0);
+    ico.matrix.translate(0, 0.5, 0);
+    ico.matrix.scale(0.5, 0.5, 0.5);
+    ico.render();
+
+    let octa = new Octahedron();
+    octa.setColor(0.2,1.0,0.8,1.0);
+    octa.matrix.translate(0, 0, 0);
+    octa.matrix.scale(0.5, 0.5, 0.5);
+    octa.render();
+
+    let pyr4 = new Pyramid4();
+    pyr4.setColor(0.2,0.8,0.2,1.0);
+    pyr4.matrix.translate(0, -0.5, 0);
+    pyr4.matrix.scale(0.5, 0.5, 0.5);
+    pyr4.render();
 
     updatePerformanceDebug(2, startTime, performance.now());
 }
