@@ -130,7 +130,6 @@ function addActionsForHTMLUI() {
     // Initialize dynamic text
     sendTextTOHTML("lowerAngleLabel", "Lower Angle (current: 0)");
     sendTextTOHTML("upperAngleLabel", "Upper Angle (current: 0)");
-    sendTextTOHTML("camAngleLabel", "Camera Angle (current: 0)");
     
     // Upper angle
     let upperAngle = document.getElementById("upperAngle")
@@ -149,10 +148,9 @@ function addActionsForHTMLUI() {
     });
 
     // Camera angle
-    let camAngle = document.getElementById("camAngle")
-    camAngle.addEventListener("input", function() {
-        sendTextTOHTML("camAngleLabel", `Camera Angle (current: ${this.value})`);
-        g_globalAngleX = this.value;
+    let resetCam = document.getElementById("resetCam")
+    resetCam.addEventListener("mousedown", function() {
+        g_globalAngleX = g_globalAngleY = 0;
         renderAllShapes();
     });
 }
