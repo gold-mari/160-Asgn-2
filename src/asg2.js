@@ -36,7 +36,9 @@ let u_ModelMatrix;
 let u_GlobalRotateMatrix;
 
 let g_rightUpperArm_Z = 0;
+let g_rightLowerArm_X = 0;
 let g_leftUpperArm_Z = 0;
+let g_leftLowerArm_X = 0;
 let g_globalAngle = [0, 0];
 let g_dragStartAngle = [0, 0];
 let g_dragStartMousePos = [0, 0]
@@ -130,9 +132,11 @@ function connectVariablesToGLSL() {
 function addActionsForHTMLUI() {
     // Initialize dynamic text
     sendTextTOHTML("leftUpperAngleLabel", "Left Upper Angle (current: 0)");
+    sendTextTOHTML("leftLowerAngleLabel", "Left Lower Angle (current: 0)");
     sendTextTOHTML("rightUpperAngleLabel", "Right Upper Angle (current: 0)");
+    sendTextTOHTML("rightLowerAngleLabel", "Right Lower Angle (current: 0)");
     
-    // Upper angle
+    // Right arm
     let rightUpperAngle = document.getElementById("rightUpperAngle");
     rightUpperAngle.addEventListener("input", function() {
         sendTextTOHTML("rightUpperAngleLabel", `Right Upper Angle (current: ${this.value})`);
@@ -140,11 +144,25 @@ function addActionsForHTMLUI() {
         renderAllShapes();
     });
 
-    // Lower angle
+    let rightLowerAngle = document.getElementById("rightLowerAngle");
+    rightLowerAngle.addEventListener("input", function() {
+        sendTextTOHTML("rightLowerAngleLabel", `Right Lower Angle (current: ${this.value})`);
+        g_rightLowerArm_X = this.value;
+        renderAllShapes();
+    });
+
+    // Left arm
     let leftUpperAngle = document.getElementById("leftUpperAngle");
     leftUpperAngle.addEventListener("input", function() {
         sendTextTOHTML("leftUpperAngleLabel", `Left Upper Angle (current: ${this.value})`);
         g_leftUpperArm_Z = this.value;
+        renderAllShapes();
+    });
+
+    let leftLowerAngle = document.getElementById("leftLowerAngle");
+    leftLowerAngle.addEventListener("input", function() {
+        sendTextTOHTML("leftLowerAngleLabel", `Left Lower Angle (current: ${this.value})`);
+        g_leftLowerArm_X = this.value;
         renderAllShapes();
     });
 
@@ -314,7 +332,12 @@ function renderAllShapes() {
 
         let arm = new Pyramid4(sleeve);
         arm.setColorHex("6d5858ff");
-        arm.matrix.translate(0, -1, 0);
+        arm.matrix.translate(0, -0.5, 0);
+
+        arm.matrix.rotate((side == "left") ? g_leftLowerArm_X : g_rightLowerArm_X, 1, 0, 0);
+
+        arm.matrix.translate(0, -0.5, 0); // Sets pivot to be tip of pyramid
+
         arm.matrix.scale(0.5, -1, 0.5);
         arm.render();
     });
