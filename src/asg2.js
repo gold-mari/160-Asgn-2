@@ -49,6 +49,7 @@ let g_shapesList = [];
 let g_startTime = 0;
 let g_seconds = 0;
 let g_shudderTimer = 0;
+let g_animate = true;
 let anims = {
     orbRot: 0,
     orbOffset: [],
@@ -89,23 +90,25 @@ function tick() {
     g_seconds = performance.now()/1000 - g_startTime;
     delta = g_seconds - delta;
 
-    // Orbital rotation
-    // g_globalAngle[0] = (g_globalAngle[0] + 0.25)%360;
+    if (g_animate) {
+        // Orbital rotation
+        // g_globalAngle[0] = (g_globalAngle[0] + 0.25)%360;
 
-    anims.orbRot = (anims.orbRot+2)%360
-    anims.orbOffset = [
-        Math.random()*0.02,
-        Math.sin(g_seconds)*0.05,
-        Math.random()*0.01
-    ];
-    
-    anims.breath = Math.sin(g_seconds * 0.9).toFixed(3);    // Slow sine movement
-    anims.rattle = Math.random().toFixed(3);                // Per-frame random movement
-    if (g_shudderTimer > 0.2) {                             // Quick sampled-and-held movement
-        anims.shudder = anims.rattle;
-        g_shudderTimer = 0;
+        anims.orbRot = (anims.orbRot+2)%360
+        anims.orbOffset = [
+            Math.random()*0.02,
+            Math.sin(g_seconds)*0.05,
+            Math.random()*0.01
+        ];
+        
+        anims.breath = Math.sin(g_seconds * 0.9).toFixed(3);    // Slow sine movement
+        anims.rattle = Math.random().toFixed(3);                // Per-frame random movement
+        if (g_shudderTimer > 0.2) {                             // Quick sampled-and-held movement
+            anims.shudder = anims.rattle;
+            g_shudderTimer = 0;
+        }
+        g_shudderTimer += delta;
     }
-    g_shudderTimer += delta;
 
     renderAllShapes();
 
@@ -182,6 +185,21 @@ function addActionsForHTMLUI() {
     sendTextTOHTML("rightLowerAngleLabel", `Right Lower Angle (current: ${g_rightLowerArm_Angle})`);
     sendTextTOHTML("rightHandAngleLabel", `Right Hand Angle (current: ${g_rightHand_Angle})`);
     
+    // Camera angle
+    let resetCam = document.getElementById("resetCam");
+    resetCam.addEventListener("mousedown", function() {
+        g_globalAngle = [0, 0];
+    });
+
+    // Toggle animations
+    let toggleAnims = document.getElementById("toggleAnims");
+    toggleAnims.addEventListener("mousedown", function() {
+        g_animate = !g_animate;
+        // If we're starting to animate again, restart the clock.
+        if (g_animate) g_startTime = performance.now()/1000;
+    });
+
+
     // Right arm
     let rightUpperRoll = document.getElementById("rightUpperRoll");
     rightUpperRoll.addEventListener("input", function() {
@@ -237,13 +255,6 @@ function addActionsForHTMLUI() {
     leftHandAngle.addEventListener("input", function() {
         sendTextTOHTML("leftHandAngleLabel", `Left Hand Angle (current: ${this.value})`);
         g_leftHand_Angle = this.value;
-        renderAllShapes();
-    });
-
-    // Camera angle
-    let resetCam = document.getElementById("resetCam");
-    resetCam.addEventListener("mousedown", function() {
-        g_globalAngle = [0, 0];
         renderAllShapes();
     });
 }
