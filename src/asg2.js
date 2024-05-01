@@ -72,6 +72,17 @@ function main() {
 
     // Clear <canvas>
     renderAllShapes();
+
+    requestAnimationFrame(tick);
+}
+
+function tick() {
+    // Orbital rotation
+    // g_globalAngle[0] = (g_globalAngle[0] + 0.25)%360;
+
+    renderAllShapes();
+
+    requestAnimationFrame(tick);
 }
 
 // ================================================================
@@ -273,7 +284,6 @@ function renderAllShapes() {
     let head = new Cube(robe);
     head.setColorHex("6d5858ff");
     head.matrix.scale(1/0.5, 1/0.75, 1/0.5); // Undo parent scale
-    
     head.matrix.translate(0, 0.0, 0);
     // head.matrix.rotate(-g_lowerAngle, 0, 0, 1);
     // head.matrix.rotate(-g_UpperRoll, 1, 0, 0);
@@ -388,32 +398,6 @@ function renderAllShapes() {
 
     updatePerformanceDebug(2, startTime, performance.now());
 }
-
-// Robot arm
-    // // Draw some cubes
-    // let base = new Cube();
-    // base.setColor(1.0,0.0,0.0,1.0);
-    // base.matrix.translate(0, -0.9, 0);
-    // base.matrix.scale(1, 1, 1);
-    // base.render();
-
-    // let lower = new Cube();
-    // lower.setColor(1.0,1.0,0.0,1.0);
-    // lower.matrix.translate(0, -0.5, 0);
-    // lower.matrix.rotate(-g_lowerAngle, 0, 0, 1);
-    // let lowerCoordsMatrix = new Matrix4(lower.matrix);
-    // lower.matrix.scale(0.2, 1, 0.2);
-    // lower.matrix.translate(0, 0.5, 0);
-    // lower.render();
-
-    // let upper = new Cube();
-    // upper.setColor(1.0,0.0,1.0,1.0);
-    // upper.matrix = lowerCoordsMatrix;
-    // upper.matrix.translate(0, 1, 0);
-    // upper.matrix.rotate(-g_UpperRoll, 0, 0, 1);
-    // upper.matrix.translate(0, 0.45, 0);
-    // upper.matrix.scale(0.1, 1, 0.1);
-    // upper.render();
 
 // ================================================================
 // Utility methods
