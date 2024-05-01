@@ -37,8 +37,9 @@ let u_GlobalRotateMatrix;
 
 let g_upperAngle = 0;
 let g_lowerAngle = 0;
-let g_globalAngleX = 0;
-let g_globalAngleY = 0;
+let g_globalAngle = [0, 0];
+let g_dragStartAngle = [0, 0];
+let g_dragStartMousePos = [0, 0]
 let g_shapesList = [];
 
 // ================================================================
@@ -56,9 +57,9 @@ function main() {
     addActionsForHTMLUI();
 
     // Register function (event handler) to be called on a mouse press
-    canvas.onmousedown = click;
+    canvas.onmousedown = function(ev) { click(ev, true) };
     // If the mouse is down, draw.
-    canvas.onmousemove = function(ev) { if(ev.buttons == 1) { click(ev); } };
+    canvas.onmousemove = function(ev) { if(ev.buttons == 1) { click(ev, false); } };
 
     // Specify the color for clearing <canvas>
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -150,7 +151,7 @@ function addActionsForHTMLUI() {
     // Camera angle
     let resetCam = document.getElementById("resetCam")
     resetCam.addEventListener("mousedown", function() {
-        g_globalAngleX = g_globalAngleY = 0;
+        g_globalAngle = [0, 0];
         renderAllShapes();
     });
 }
@@ -164,13 +165,18 @@ function clearCanvas() {
 // Event callback methods
 // ================================================================
 
-function click(ev) {
+function click(ev, dragStart) {
 
     // Extract the event click and convert to WebGL canvas space
     let [x, y] = coordinatesEventToGLSpace(ev);
 
-    g_globalAngleX = x * -180;
-    g_globalAngleY = y * 180;
+    if (dragStart) {
+        g_dragStartAngle = [g_globalAngle[0], g_globalAngle[1]];
+        g_dragStartMousePos = [x, y]
+    }
+
+    g_globalAngle[0] = g_dragStartAngle[0] + ((x - g_dragStartMousePos[0]) * -180);
+    g_globalAngle[1] = g_dragStartAngle[1] + ((y - g_dragStartMousePos[1]) * 180);
     renderAllShapes();
 
 //     let shape = undefined;
@@ -222,8 +228,8 @@ function renderAllShapes() {
 
     // Pass in the global angle matrix
     let globalRotationMatrix = new Matrix4();
-    globalRotationMatrix.rotate(g_globalAngleX, 0, 1, 0);
-    globalRotationMatrix.rotate(g_globalAngleY, 1, 0, 0);
+    globalRotationMatrix.rotate(g_globalAngle[0], 0, 1, 0);
+    globalRotationMatrix.rotate(g_globalAngle[1], 1, 0, 0);
     gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotationMatrix.elements);
 
     // Clear <canvas>
