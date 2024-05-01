@@ -4,11 +4,6 @@ class Cube {
 
     constructor() {
         this.type = "cube";
-        // this.position = {
-        //     x : 0.0,
-        //     y: 0.0,
-        //     z: 0.0
-        // };
         this.color = {
             r: 1.0,
             g: 1.0,
@@ -18,10 +13,6 @@ class Cube {
 
         this.matrix = new Matrix4();
     }
-
-    // setPosition(x, y, z) {
-    //     this.position = {x, y, z};
-    // }
 
     setColor(r, g, b, a) {
         this.color = {r, g, b, a};
@@ -35,9 +26,9 @@ class Cube {
         // Pass the color of a point to u_FragColor variable
         let verts = Cube.vertices;
         let falloffPer = 0.1;
+        let falloff = 1;
         for (let i = 0; i < 6; i++) {
-            let falloff = Math.max(1-(i)*falloffPer, 0);
-            console.log(falloff);
+            falloff = Math.max(1-(i)*falloffPer, 0);
             gl.uniform4f(u_FragColor, this.color.r*falloff, this.color.g*falloff, this.color.b*falloff, 1);
 
             Triangle.drawTriangle3D(verts[i*2]);

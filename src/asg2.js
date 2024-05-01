@@ -85,6 +85,8 @@ function setUpWebGL() {
         console.log("Failed to get the rendering context for WebGL");
         return;
     }
+
+    gl.enable(gl.DEPTH_TEST);
 }
 
 function connectVariablesToGLSL() {
@@ -198,6 +200,7 @@ function addActionsForHTMLUI() {
 
 function clearCanvas() {
     gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clear(gl.DEPTH_BUFFER_BIT);
 }
 
 // ================================================================
