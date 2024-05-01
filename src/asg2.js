@@ -38,9 +38,11 @@ let u_GlobalRotateMatrix;
 let g_rightUpperArm_Roll = 0;
 let g_rightUpperArm_Yaw = 0;
 let g_rightLowerArm_X = 0;
+let g_rightHand_Angle = 0;
 let g_leftUpperArm_Roll = 0;
 let g_leftUpperArm_Yaw = 0;
 let g_leftLowerArm_X = 0;
+let g_leftHand_Angle = 0;
 let g_globalAngle = [0, 0];
 let g_dragStartAngle = [0, 0];
 let g_dragStartMousePos = [0, 0]
@@ -136,9 +138,11 @@ function addActionsForHTMLUI() {
     sendTextTOHTML("leftUpperRollLabel", "Left Upper Roll (current: 0)");
     sendTextTOHTML("leftUpperYawLabel", "Left Upper Yaw (current: 0)");
     sendTextTOHTML("leftLowerAngleLabel", "Left Lower Angle (current: 0)");
+    sendTextTOHTML("leftHandAngleLabel", "Left Hand Angle (current: 0)");
     sendTextTOHTML("rightUpperRollLabel", "Right Upper Roll (current: 0)");
     sendTextTOHTML("rightUpperYawLabel", "Right Upper Yaw (current: 0)");
     sendTextTOHTML("rightLowerAngleLabel", "Right Lower Angle (current: 0)");
+    sendTextTOHTML("rightHandAngleLabel", "Right Hand Angle (current: 0)");
     
     // Right arm
     let rightUpperRoll = document.getElementById("rightUpperRoll");
@@ -162,6 +166,13 @@ function addActionsForHTMLUI() {
         renderAllShapes();
     });
 
+    let rightHandAngle = document.getElementById("rightHandAngle");
+    rightHandAngle.addEventListener("input", function() {
+        sendTextTOHTML("rightHandAngleLabel", `Right Hand Angle (current: ${this.value})`);
+        g_rightHand_Angle = this.value;
+        renderAllShapes();
+    });
+
     // Left arm
     let leftUpperRoll = document.getElementById("leftUpperRoll");
     leftUpperRoll.addEventListener("input", function() {
@@ -181,6 +192,13 @@ function addActionsForHTMLUI() {
     leftLowerAngle.addEventListener("input", function() {
         sendTextTOHTML("leftLowerAngleLabel", `Left Lower Angle (current: ${this.value})`);
         g_leftLowerArm_X = this.value;
+        renderAllShapes();
+    });
+
+    let leftHandAngle = document.getElementById("leftHandAngle");
+    leftHandAngle.addEventListener("input", function() {
+        sendTextTOHTML("leftHandAngleLabel", `Left Hand Angle (current: ${this.value})`);
+        g_leftHand_Angle = this.value;
         renderAllShapes();
     });
 
@@ -339,26 +357,33 @@ function renderAllShapes() {
 
         let sleeve = new Pyramid4(robe);
         sleeve.matrix.scale(1/0.5, 1/0.75, 1/0.5); // Undo parent scale
-
         sleeve.matrix.translate(armSign*0.1, 0.1, 0);
         sleeve.matrix.rotate((side == "left") ? -g_leftUpperArm_Yaw : g_rightUpperArm_Yaw, 0, 1, 0);
         sleeve.matrix.rotate((side == "left") ? -g_leftUpperArm_Roll : g_rightUpperArm_Roll, 0, 0, 1);
-
         sleeve.matrix.translate(armSign*0.1, 0, 0); // Sets pivot to be tip of pyramid
         sleeve.matrix.rotate(armSign*90, 0, 0, 1);
         sleeve.matrix.scale(0.2, 0.2, 0.2);
         sleeve.render();
 
-        let arm = new Pyramid4(sleeve);
-        arm.setColorHex("6d5858ff");
-        arm.matrix.translate(0, -0.5, 0);
+        let arm_pyr = new Pyramid4(sleeve);
+        arm_pyr.setColorHex("6d5858ff");
+        arm_pyr.matrix.translate(0, -0.5, 0);
+        arm_pyr.matrix.rotate((side == "left") ? g_leftLowerArm_X : g_rightLowerArm_X, 1, 0, 0);
+        arm_pyr.matrix.translate(0, -0.5, 0); // Sets pivot to be tip of pyramid
+        arm_pyr.matrix.scale(0.5, -1, 0.5);
+        arm_pyr.render();
 
-        arm.matrix.rotate((side == "left") ? g_leftLowerArm_X : g_rightLowerArm_X, 1, 0, 0);
+        let arm_cub = new Cube(arm_pyr);
+        arm_cub.matrix.scale(0.5, 1, 0.5);
+        arm_cub.render();
 
-        arm.matrix.translate(0, -0.5, 0); // Sets pivot to be tip of pyramid
-
-        arm.matrix.scale(0.5, -1, 0.5);
-        arm.render();
+        let hand = new Cube(arm_pyr);
+        hand.matrix.scale(1/0.5, 1/-1, 1/0.5); // Undo parent scale
+        hand.matrix.translate(armSign*-0.025, -0.4, 0);
+        hand.matrix.rotate((side == "left") ? -g_leftHand_Angle : -g_rightHand_Angle, 0, 0, 1);
+        hand.matrix.translate(0, -0.25, 0); // Sets pivot to be bottom of cube
+        hand.matrix.scale(0.2, 0.5, 0.5);
+        hand.render();
     });
 
     updatePerformanceDebug(2, startTime, performance.now());
