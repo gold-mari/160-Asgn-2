@@ -465,17 +465,17 @@ function renderAllShapes() {
     orb.matrix.rotate(anims.orbRot, 1, 2, 3);
     orb.render();
 
-    updatePerformanceDebug("a lot", startTime, performance.now());
+    updatePerformanceDebug(startTime, performance.now());
 }
 
 // ================================================================
 // Utility methods
 // ================================================================
 
-function updatePerformanceDebug(shapes, start, end) {
+function updatePerformanceDebug(start, end) {
     let duration = end-start;
     sendTextTOHTML("performance",
-                        `# shapes: ${shapes} | ms: ${Math.floor(duration)} | fps: ${Math.floor(10000/duration)/10}`)
+                        `ms: ${Math.floor(duration)} | fps: ${Math.floor(10000/duration)/10}`)
 }
 
 function sendTextTOHTML(htmlID, text) {
