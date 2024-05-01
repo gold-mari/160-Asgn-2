@@ -7,10 +7,10 @@
 // Vertex shader program
 var VSHADER_SOURCE = `
     attribute vec4 a_Position;
-    uniform float u_Size;
+    uniform mat4 u_ModelMatrix;
+    uniform mat4 u_GlobalRotateMatrix;
     void main() {
-        gl_Position = a_Position;
-        gl_PointSize = u_Size;
+        gl_Position = u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
     }`;
 
 // Fragment shader program
@@ -31,13 +31,14 @@ let canvas;
 let gl;
 let penColorPreviewDiv;
 let a_Position;
-let u_Size;
 let u_FragColor;
+let u_ModelMatrix;
+let u_GlobalRotateMatrix;
 
 let g_penLocked = false;
 let g_penColor = [1.0, 1.0, 1.0, 1.0];
 let g_penSize = 10.0;
-let g_circleSegments = 10;
+let g_globalAngle = 0;
 let g_penType = POINT;
 let g_shapesList = [];
 
@@ -64,7 +65,7 @@ function main() {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
     // Clear <canvas>
-    clearCanvas();
+    renderAllShapes();
 }
 
 // ================================================================
@@ -93,21 +94,35 @@ function connectVariablesToGLSL() {
         return;
     }
 
-    // Get storage locations
     a_Position = gl.getAttribLocation(gl.program, 'a_Position');
-    u_FragColor = gl.getUniformLocation(gl.program, 'u_FragColor');
-    u_Size = gl.getUniformLocation(gl.program, 'u_Size');
+    if (a_Position < 0) {
+        console.log("Failed to get the storage location of a_Position");
+        return;
+    }
 
-    // Check that all variables exist
-    if (a_Position < 0 || !u_Size || !u_FragColor) {
-        if (a_Position < 0) console.log("Failed to get the storage location of a_Position");
-        if (!u_FragColor) console.log("Failed to get u_FragColor variable");
-        if (!u_Size) console.log("Failed to get u_Size variable");
+    u_FragColor = gl.getUniformLocation(gl.program, 'u_FragColor');
+    if (!u_FragColor) {
+        console.log("Failed to get u_FragColor variable");
+        return;
+    }
+
+    u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
+    if (!u_ModelMatrix) {
+        console.log("Failed to get u_ModelMatrix variable");
+        return;
+    }
+
+    u_GlobalRotateMatrix = gl.getUniformLocation(gl.program, 'u_GlobalRotateMatrix');
+    if (!u_GlobalRotateMatrix) {
+        console.log("Failed to get u_GlobalRotateMatrix variable");
         return;
     }
 
     // Provide default values
     gl.vertexAttrib3f(a_Position, 0.0, 0.0, 0.0);
+
+    let identityMatrix = new Matrix4();
+    gl.uniformMatrix4fv(u_ModelMatrix, false, identityMatrix.elements);
 }
 
 function addActionsForHTMLUI() {
@@ -119,24 +134,10 @@ function addActionsForHTMLUI() {
         }
     });
 
-    // Draw bird buttons
-    document.getElementById("drawBird").addEventListener("mouseup", function() {
-        if (!g_penLocked) {
-            g_shapesList = []; 
-            renderBird(false);
-        }
-    });
-    document.getElementById("drawBird_Rush").addEventListener("mouseup", function() {
-        if (!g_penLocked) {
-            g_shapesList = []; 
-            renderBird(true);
-        }
-    });
-
     // Initialize dynamic text
     g_penType = POINT;
     sendTextTOHTML("penType", "Pen Type (selected: POINT)");
-    sendTextTOHTML("circleLabel", `Circle Segments (current: ${g_circleSegments})`); 
+    sendTextTOHTML("camAngleLabel", "Camera Angle (current: 0)");
 
     document.getElementById("penPoint").addEventListener("mouseup", function() { 
         g_penType = POINT;
@@ -152,12 +153,11 @@ function addActionsForHTMLUI() {
     });
     
     // Circle segment count slider
-    let circleCount = document.getElementById("circleCount")
-    circleCount.addEventListener("mouseup", function() { 
-        g_circleSegments = this.value;
-    });
-    circleCount.addEventListener("mousemove", function() {
-        sendTextTOHTML("circleLabel", `Circle Segments (current: ${this.value})`);
+    let camAngle = document.getElementById("camAngle")
+    camAngle.addEventListener("input", function() {
+        sendTextTOHTML("camAngleLabel", `Camera Angle (current: ${this.value})`);
+        g_globalAngle = this.value;
+        renderAllShapes();
     });
 
     // Pen color sliders and color preview
@@ -258,31 +258,29 @@ function renderAllShapes() {
     // Store the time at the start of this function.
     let startTime = performance.now();
 
-    // Clear <canvas>
-    clearCanvas();
-
-    var len = g_shapesList.length;
-    for(var i = 0; i < len; i++) {
-        g_shapesList[i].render();
-    }
-
-    updatePerformanceDebug(len, startTime, performance.now());
-}
-
-function renderBird(doRush) {
-
-    g_penLocked = true;
-
-    // Store the time at the start of this function.
-    let startTime = performance.now();
+    // Pass in the global angle matrix
+    let globalRotationMatrix = new Matrix4().rotate(g_globalAngle, 0, 1, 0);
+    gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotationMatrix.elements);
 
     // Clear <canvas>
     clearCanvas();
 
-    FreeTriangleGroup.renderFreeTriangles(birdPoints, g_shapesList, renderAllShapes, function() { g_penLocked = false; },
-                                          rush=doRush);
+    // Draw some cubes
+    let body = new Cube();
+    body.setColor(1.0,0.0,0.0,1.0);
+    body.matrix.translate(-0.25, -0.5, 0.0);
+    body.matrix.scale(0.5, 1, -0.5);
+    body.render();
 
-    updatePerformanceDebug(birdPoints.length, startTime, performance.now());
+    // // Draw a left arm
+    let leftArm = new Cube();
+    leftArm.setColor(1.0,1.0,0.0,1.0);
+    leftArm.matrix.translate(0.7, 0.0, 0.0);
+    leftArm.matrix.rotate(45, 0, 0, 1);
+    leftArm.matrix.scale(0.25, 0.7, 0.5);
+    leftArm.render();
+
+    updatePerformanceDebug(2, startTime, performance.now());
 }
 
 // ================================================================

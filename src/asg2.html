@@ -36,7 +36,6 @@
         <canvas id="webgl" width="400" height="400">
             Please use the browser supporting "canvas".
         </canvas>
-        <img src="../src/asg1-jay.jpg" width="400">
 
         <p id="performance">Begin drawing to see performance data!</p>
 
@@ -56,8 +55,8 @@
 
             <br><br>
 
-            <label for="circleCount"><strong><div id="circleLabel">Circle Segments</div></strong></label>
-            <input id="circleCount" name="circleCount" type="range" class="slider" min="3" max="16" value="10">
+            <label for="camAngle"><strong><div id="camAngleLabel">Camera Angle</div></strong></label>
+            <input id="camAngle" name="camAngle" type="range" class="slider" min="0" max="360" value="0">
 
             <br><br>
 
@@ -81,12 +80,9 @@
         <script src="../lib/webgl-utils.js"></script>
         <script src="../lib/webgl-debug.js"></script>
         <script src="../lib/cuon-utils.js"></script>
-        <script src="Point.js"></script>
+        <script src="../lib/cuon-matrix.js"></script>
         <script src="Triangle.js"></script>
-        <script src="FreeTriangle.js"></script>
-        <script src="FreeTriangleGroup.js"></script>
-        <script src="Circle.js"></script>
-        <script src="Drawings.js"></script>
-        <script src="asg1.js"></script>
+        <script src="Cube.js"></script>
+        <script src="asg2.js"></script>
     </body>
 </html>
